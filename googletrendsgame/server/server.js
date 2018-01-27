@@ -1,7 +1,11 @@
 
-//list of all the rooms
-var rooms = {};
 
+/**
+ * Object used for storing rooms
+ * @param capacityP -- the number of people that can be in room
+ * @param pass -- the room password -- null if none
+ * @param owner -- the person who is creating the room
+ */
 var room = function(capacityP, pass, owner)
 {
     //max capacity of room -- default is 4 for now
@@ -39,7 +43,8 @@ var room = function(capacityP, pass, owner)
     }
 
     /**
-     *
+     * Removes a specific user from the room and adjusts the size of the array
+     * if the array is empty, the room closes
      * @param p
      */
     this.removeUser = function(p)
@@ -67,11 +72,20 @@ var room = function(capacityP, pass, owner)
         }
     }
 
+    /**
+     * creates json to send in the 'roomUpdate' socket event
+     */
     this.generateRoomUpdate()
     {
 
     }
 
+    /**
+     * Whether or not a user can join this room -- checks for number of people are
+     * already in the room and the password
+     * @param p
+     * @returns {boolean}
+     */
     this.canJoin = function(p)
     {
         if(this.password == null)
@@ -85,6 +99,9 @@ var room = function(capacityP, pass, owner)
     }
 
 }
+
+//list of all the rooms
+var rooms = {};
 
 var player = function(s)
 {
@@ -101,8 +118,16 @@ var player = function(s)
     this.room = null;
 
     this.sumbission = null;
-}
 
+    /**
+     * generate the json object used in 'roomUpdate' socket io event
+     */
+    this.genJASON = function()
+    {
+
+    }
+}
+//list of all players --accessed using names like a dic
 var players = {};
 
 
@@ -113,6 +138,8 @@ var io = require('socket.io')(http);
 const port = 3000;
 
 const serverUtils = require('./serverUtils.js');
+
+
 
 //Whenever someone connects this gets executed
 io.on('connection', function(socket)
@@ -158,16 +185,17 @@ io.on('connection', function(socket)
     });
 
     /**
-     *
+     * Room Selection (joinRoom)	Client => Server
+     * data {roomName:  , password: }
      */
     socket.on('joinRoom', function(data) {
         console.log("join room event called");
         console.log(data);
         console.log("  ");
 
-        if(rooms[data.name].canJoin(data.password))
+        if(rooms[data.roomName].canJoin(data.password))
         {
-            rooms[data.name].addUser(player);
+            rooms[data.roomName].addUser(player);
         }
         else
         {
@@ -175,13 +203,16 @@ io.on('connection', function(socket)
         }
     });
 
+    /**
+     * data -- literally a string
+     */
     socket.on('submitWord', function(data) {
         console.log("submitWord called");
         console.log(data);
         console.log("  ");
     });
 
-    //Whenever someone disconnects this piece of code executed
+    //Whenever someone disconnects
     socket.on('disconnect', function () {
         console.log('A user disconnected');
 
@@ -195,6 +226,8 @@ io.on('connection', function(socket)
         {
             player.room.removeUser(player);
         }
+
+        players[player.name] = null;
 
     });
 });

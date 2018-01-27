@@ -12,5 +12,15 @@ module.exports=
         getRandomWord : function()
         {
             return '';
+        },
+
+        /**
+         * returns a specific amount of words -- unique
+         * @param num
+         * @returns {Array}
+         */
+        getRandomWords : function(num)
+        {
+            return [];
         }
     };
