@@ -1,14 +1,16 @@
 
 //list of all the rooms
-var rooms = [];
+var rooms = {};
 
-var room = function(capacityP, roomN)
+var room = function(capacityP, pass, owner)
 {
     //max capacity of room -- default is 4 for now
     this.capacity = capacityP;
 
     //name of the room
-    this.roomName = roomN;
+    this.roomName = owner.name;
+
+    this.addUser(owner);
 
     //list of words used in the game
     this.words = [];
@@ -17,10 +19,12 @@ var room = function(capacityP, roomN)
     this.users = [];
 
     //increments when rounds pass
-    this.currentRoom = 0;
+    this.currentRound = 0;
 
     // the password of the room -- null if no password
     this.password = null;
+
+    this.state = 1;
 
     /**
      * adds a user to a room
@@ -30,14 +34,8 @@ var room = function(capacityP, roomN)
     this.addUser = function(player)
     {
         //check if room is not full
-        if(this.users.length != this.capacity)
-        {
-            this.users.push(player)
-        }
-        else
-        {
-
-        }
+        this.users.push(player);
+        player.room = this;
     }
 
     /**
@@ -46,10 +44,44 @@ var room = function(capacityP, roomN)
      */
     this.removeUser = function(p)
     {
-        this.users.remove(p);
+        var temp = new Array();
+
+        for(var i = 0; i < temp.length; i++)
+        {
+            if(p.name === this.users[i].name)
+            {
+
+            }
+            else
+            {
+                temp.push(this.users[i]);
+            }
+        }
+
+        this.users = temp;
 
         //if room is empty remove the room from rooms list
-        rooms.remove(this);
+        if(this.users.length == 0)
+        {
+            rooms[this.roomName] = null;
+        }
+    }
+
+    this.generateRoomUpdate()
+    {
+
+    }
+
+    this.canJoin = function(p)
+    {
+        if(this.password == null)
+        {
+            return (this.users.length < this.capacity);
+        }
+        else
+        {
+            return (this.users.length < this.capacity) && (p === this.password);
+        }
     }
 
 }
@@ -68,10 +100,10 @@ var player = function(s)
     //reference to the room -- might not need this
     this.room = null;
 
-
-    //
     this.sumbission = null;
 }
+
+var players = {};
 
 
 var app = require('express')();
@@ -80,7 +112,7 @@ var io = require('socket.io')(http);
 
 const port = 3000;
 
-const utils = require('./serverUtils.js');
+const serverUtils = require('./serverUtils.js');
 
 //Whenever someone connects this gets executed
 io.on('connection', function(socket)
@@ -98,15 +130,18 @@ io.on('connection', function(socket)
         console.log("  ");
 
         //checks for user name in use
-        if(utils.userAvailable(data, rooms))
+        if(serverUtils.userAvailable(data, players))
         {
             player.name = data;
+
+            players[data] = player;
+
+            socket.emit('sendRooms', serverUtils.generateSendRoomsJSON(rooms));
         }
         else
         {
             socket.emit('registerFailed', 'User name taken');
         }
-
     });
 
     /**
@@ -117,6 +152,7 @@ io.on('connection', function(socket)
         console.log("create room event called");
         console.log(data);
         console.log("  ");
+        rooms[player.name] = new room(data.capacity, data.password, player);
 
 
     });
@@ -128,6 +164,15 @@ io.on('connection', function(socket)
         console.log("join room event called");
         console.log(data);
         console.log("  ");
+
+        if(rooms[data.name].canJoin(data.password))
+        {
+            rooms[data.name].addUser(player);
+        }
+        else
+        {
+            socket.emit('registerFailed', 'Failed connecting to room');
+        }
     });
 
     socket.on('submitWord', function(data) {
@@ -139,6 +184,18 @@ io.on('connection', function(socket)
     //Whenever someone disconnects this piece of code executed
     socket.on('disconnect', function () {
         console.log('A user disconnected');
+
+        if(rooms[player.name] != null)
+        {
+            rooms[player.name] = null;
+        }
+
+        //leave the room
+        if(player.room != null)
+        {
+            player.room.removeUser(player);
+        }
+
     });
 });
 
