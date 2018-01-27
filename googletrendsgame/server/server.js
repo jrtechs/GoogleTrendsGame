@@ -1,4 +1,6 @@
+const serverUtils = require('./serverUtils.js');
 
+const utils = require("./utils.js");
 
 /**
  * Object used for storing rooms
@@ -17,7 +19,10 @@ var room = function(capacityP, pass, owner)
     this.addUser(owner);
 
     //list of words used in the game
-    this.words = [];
+    //7 for now will change later to be room specific
+    this.words = utils.getRandomWords(7);
+
+    this.currentWord = this.words.pop();
 
     //list players -- so we can push requests to them
     this.users = [];
@@ -28,6 +33,12 @@ var room = function(capacityP, pass, owner)
     // the password of the room -- null if no password
     this.password = null;
 
+    /**
+     1 = Waiting for users
+     2 = Word shown, Waiting for response from users
+     3 = Showing Result
+     4 = Game Over, Display Final Results
+    */
     this.state = 1;
 
     /**
@@ -40,6 +51,23 @@ var room = function(capacityP, pass, owner)
         //check if room is not full
         this.users.push(player);
         player.room = this;
+
+        if(this.users.length == this.capacity)
+        {
+            this.state = 2;
+        }
+
+        this.sendRoomUpdate();
+
+    }
+
+    this.sendRoomUpdate = function()
+    {
+        var message = this.generateRoomUpdate();
+        this.users.forEach(function(u)
+        {
+            u.socket.emit('roomUpdate', message);
+        });
     }
 
     /**
@@ -74,10 +102,25 @@ var room = function(capacityP, pass, owner)
 
     /**
      * creates json to send in the 'roomUpdate' socket event
+     *
+     * {users: gameState: roundWinner: currentWord: }
      */
-    this.generateRoomUpdate()
+    this.generateRoomUpdate = function()
     {
+        var result = new Object();
+        result.users = [];
+        this.users.forEach(function(u)
+        {
+            result.users.push(u.genJASON());
+        });
 
+        result.gameState = this.state;
+
+        result.roundWinner = "meh";
+
+        result.currentWord = this.currentWord;
+
+        return result;
     }
 
     /**
@@ -96,6 +139,12 @@ var room = function(capacityP, pass, owner)
         {
             return (this.users.length < this.capacity) && (p === this.password);
         }
+    }
+
+    //updates room variables
+    this.update = function()
+    {
+
     }
 
 }
@@ -117,14 +166,31 @@ var player = function(s)
     //reference to the room -- might not need this
     this.room = null;
 
+    //the word the user selected for current round
     this.sumbission = null;
 
     /**
      * generate the json object used in 'roomUpdate' socket io event
+     *
+     * return {name: score: word:}
      */
     this.genJASON = function()
     {
+        var result = new Object();
+        result.name = this.name;
+        result.score = this.score;
+        result.word = this.sumbission;
+    }
 
+    /**
+     * data -- literally a string
+     * @param data
+     */
+    this.selectWord = function(data)
+    {
+        this.sumbission = data;
+
+        this.room.update();
     }
 }
 //list of all players --accessed using names like a dic
@@ -136,9 +202,6 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 const port = 3000;
-
-const serverUtils = require('./serverUtils.js');
-
 
 
 //Whenever someone connects this gets executed
@@ -210,6 +273,8 @@ io.on('connection', function(socket)
         console.log("submitWord called");
         console.log(data);
         console.log("  ");
+
+        player.selectWord(data);
     });
 
     //Whenever someone disconnects
