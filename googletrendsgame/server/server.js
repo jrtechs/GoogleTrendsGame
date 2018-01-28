@@ -122,7 +122,7 @@ var room = function(capacityP, pass, owner)
         var message = this.generateRoomUpdate();
         this.users.forEach(function(u)
         {
-            console.log("room update called");
+            //console.log("room update called");
             u.socket.emit('roomUpdate', message);
             //console.log(message);
         });
@@ -135,7 +135,7 @@ var room = function(capacityP, pass, owner)
      */
     this.addUser = function(player)
     {
-        console.log("user added");
+        //console.log("user added");
         //check if room is not full
         this.users.push(player);
         player.room = this;
@@ -489,7 +489,7 @@ io.on('connection', function(socket)
      */
     socket.on('joinRoom', function(data)
     {
-        console.log(p.name + " joined room " + data.name);
+        console.log(p.name + " joined room " + data.roomName);
 
 
         if(rooms[data.roomName] != null && rooms[data.roomName].canJoin(data.password))
