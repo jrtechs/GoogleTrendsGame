@@ -12,7 +12,7 @@ export default (props) => {
     return(
       <div>
        <div>{roomsList}</div>
-       <button>Create Room</button>
+       <button onClick={props.stateModifier}>Create Room</button>
       </div>
     );
   } else {
