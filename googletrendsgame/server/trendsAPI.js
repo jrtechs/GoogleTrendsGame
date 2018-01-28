@@ -59,6 +59,8 @@ module.exports=
                 })
 
                 //tell function to return
+                  console.log("********************" + total);
+                  //pl.selectWord2(total);
                 resolve(total);
               }).catch(function(err){
                 reject("Google Trends Query Failed");

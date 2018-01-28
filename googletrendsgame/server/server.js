@@ -124,7 +124,7 @@ var room = function(capacityP, pass, owner)
         {
             console.log("room update called");
             u.socket.emit('roomUpdate', message);
-            console.log(message);
+            //console.log(message);
         });
     }
 
@@ -145,8 +145,8 @@ var room = function(capacityP, pass, owner)
             this.state = 2;
         }
 
-        console.log("rooms users");
-        console.log(this.users);
+        console.log("user added to room " + player.name);
+        //console.log(this.users);
 
         this.update();
     }
@@ -211,6 +211,7 @@ var room = function(capacityP, pass, owner)
      */
     this.newRound = function()
     {
+        console.log("new round started");
         if(this.words.length == 0)
         {
             this.state == 4;
@@ -231,6 +232,7 @@ var room = function(capacityP, pass, owner)
     //updates room variables
     this.update = function()
     {
+        console.log("update methed called");
         switch(this.state)
         {
             case 1: //waiting for users to join
@@ -276,6 +278,7 @@ var room = function(capacityP, pass, owner)
                 console.log("You don goof up")
             }
         }
+        console.log(this.state + "uuuuuuuuuuuuuuuuu");
         this.sendRoomUpdate();
     }
     this.addUser(owner);
@@ -326,20 +329,26 @@ var player = function(s)
      */
     this.selectWord = function(data)
     {
-        this.sumbission = data;
         var w = data + " " + this.room.currentWord;
+        this.sumbission = data;
+
+        console.log(w);
+
         trendingAPI.getPopularity(w).then(function(result)
         {
-            var obj = new Object();
-            obj.word = w;
-            obj.score = result;
-            this.log.push(obj);
-
+            // var obj = new Object();
+            // obj.word = w;
+            // obj.score = result;
+            // this.log.push(obj);
+            console.log("api result for " + result);
             this.roundScore = result;
             this.score += result;
-            console.log("api result for " + result);
+
+            console.print(this.room);
             this.room.update();
+
         })
+
     }
 }
 
@@ -433,7 +442,7 @@ io.on('connection', function(socket)
 
             socket.emit('sendRooms', generateSendRoomsJSON());
             console.log("send rooms called");
-            console.log(generateSendRoomsJSON());
+            //console.log(generateSendRoomsJSON());
         }
         else
         {
@@ -441,7 +450,7 @@ io.on('connection', function(socket)
             console.log("registration failed sent");
         }
 
-        console.log(player);
+        //console.log(player);
     });
 
     /**
@@ -489,14 +498,16 @@ io.on('connection', function(socket)
 
         if(rooms[data.roomName] != null && rooms[data.roomName].canJoin(data.password))
         {
+            p.room = rooms[data.roomName];
             rooms[data.roomName].addUser(p);
+
             console.log("user joined room");
         }
         else
         {
             socket.emit('joinFailed', 'Failed connecting to room');
         }
-        console.log(rooms);
+        //console.log(rooms);
     });
 
     /**

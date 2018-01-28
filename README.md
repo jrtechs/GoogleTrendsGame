@@ -18,6 +18,8 @@ npm install promise
 ````
 
 ##Database Construction
+
+````
 create database googleTrends;
 
 use googleTrends;
@@ -38,3 +40,10 @@ create table data(
 
 
 grant all on googleTrends.* to trendingUser@localhost identified by "password";
+````
+
+## Socket IO events for server
+
+````
+
+````

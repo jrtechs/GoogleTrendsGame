@@ -9,6 +9,14 @@
     var socket = io();
     socket.emit('register', 'jeff');
 
+    var join = function(name)
+    {
+        var obj = new Object();
+        obj.roomName = name;
+        obj.password = '';
+        socket.emit('joinRoom', obj);
+    }
+
     socket.on('sendRooms', function(data)
     {
         console.log("got rooms");
@@ -17,6 +25,7 @@
 
         data.rooms.forEach(function(r)
         {
+            document.write("<input type=\"submit\" value=\"Join Room" + r.name + "\" onclick=\"join(\"" + r.name + "\")\">");
             document.write(r.name)
             document.write("<br />");
         });
