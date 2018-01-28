@@ -18,6 +18,7 @@ rl.on('line', function(line){
 
       case 'register':
       case 'submitWord':
+      case 'updateRoom':
         socket.emit(event, msg);
     }
 });

@@ -67,7 +67,6 @@ affect
 afford
 afraid
 African
-African-American
 after
 afternoon
 again
@@ -153,7 +152,6 @@ appropriate
 approval
 approve
 approximately
-Arab
 architect
 area
 argue
@@ -1440,7 +1438,6 @@ jacket
 jail
 Japanese
 jet
-Jew
 Jewish
 job
 join
@@ -2696,7 +2693,7 @@ there
 therefore
 these
 they
-thick
+thicc
 thin
 thing
 think
