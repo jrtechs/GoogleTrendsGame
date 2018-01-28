@@ -2,14 +2,26 @@ import React from 'react';
 import User from './User'
 
 export default (props) => {
-  var users = props.users;
+  console.log(props.gameDataPassed);
 
-  var userList = users.map((user) =>
-    <User name={user.name} score={user.score} word={user.word}>
-  );
+  const nameArray = props.gameDataPassed.users.map(name => name.name);
+  const scoreArray = props.gameDataPassed.users.map(score => score.score);
+  const wordArray = props.gameDataPassed.users.map(word => word.word);
+
+  console.log(nameArray);
+  console.log(scoreArray);
+  console.log(wordArray);
+
+  var users = [];
+
+  for(var i = 0; i < nameArray.length; i++){
+    users.push(<User name={nameArray[i]} score={scoreArray[i]} word={wordArray[i]} />);
+  }
+
   return(
+
     <div>
-      <ol> {userList} </ol>
+      {users}
     </div>
-  );
+  )
 }

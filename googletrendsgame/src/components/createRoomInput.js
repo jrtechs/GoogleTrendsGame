@@ -25,9 +25,11 @@ export default class CreateRoomInput extends Component {
 
   sendRoomData(event){
     event.preventDefault();
-
+     console.log("sendRoomData called");
     this.props.socket.emit('createRoom', {password: this.state.passwordFieldValue, capacity: this.state.capacityFieldValue});
     this.setState({ passwordFieldValue: '', capacityFieldValue: '' });
+    this.props.socket.emit('joinRoom', {})
+    //this.props.goToRoom()
   }
 
   render(){
@@ -36,7 +38,7 @@ export default class CreateRoomInput extends Component {
         <input type="password" placeholder="Password" onChange = {this.onInputChangePass} value={this.state.passwordFieldValue} />
         <input type='number' placeholder="Max room members" onChange = {this.onInputChangeCapacity} value={this.state.capacityFieldValue} />
         <span>
-          <ActiveButton goBack={this.props.goBack} passInput={this.state.passwordFieldValue} capacityInput={this.state.capacityFieldValue} type='createRoom' />
+          <ActiveButton passInput={this.state.passwordFieldValue} capacityInput={this.state.capacityFieldValue} type='createRoom' />
         </span>
       </form>
     )

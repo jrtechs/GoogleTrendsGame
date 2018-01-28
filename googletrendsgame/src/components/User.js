@@ -2,31 +2,32 @@ import React from 'react';
 import FontAwesome from 'react-fontawesome';
 
 export default (props) => {
-  const name = this.props.name;
-  const score = this.props.score;
+  console.log('entered user obj')
+  const name = props.name;
+  const score = props.score;
   var word;
-  if (this.props.word === ''){
+  if (props.word === ''){
     word = 'true'
   } else {
     word = 'false'
   }
-
-
     if (word === 'true') {
+      console.log('Word is true');
       return(
-      <li>
-        <div>{name}</div>
-        <div>{score}</div>
+      <div>
+        <div>Name: {name}</div>
+        <div>Score: {score}</div>
         <FontAwesome name='check-circle' />
-      </li>
+      </div>
     )
   } else {
+    console.log('Word is false')
     return (
-      <li>
+      <div>
         <div>Name: {name}</div>
         <div>Score: {score}</div>
         <FontAwesome name='times-circle' />
-      </li>
+      </div>
     )
   }
 }
