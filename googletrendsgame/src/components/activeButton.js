@@ -19,7 +19,7 @@ export default class activeButton extends Component {
       case 'createRoom':
         if(this.props.capacityInput !== '' && this.props.capacityInput <= 25 && this.props.capacityInput>=2 && this.props.capacityInput.length <= 2){
           return(
-            <button onClick={this.props.goBack}>Create Room</button>
+            <button>Create Room</button>
           )
         } else {
           return(
