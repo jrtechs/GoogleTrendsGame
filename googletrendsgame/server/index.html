@@ -23,7 +23,13 @@
         var tt = new Object();
         tt.roomName = "den";
         tt.password = "pp";
-        socket.emit('joinRoom', tt);
+        socket.emit('createRoom', tt);
+    });
+
+    socket.on('roomUpdate', function(data)
+    {
+        console.log("good");
+        console.log(data);
     });
 
 

@@ -181,6 +181,7 @@ var room = function(capacityP, pass, owner)
         //if room is empty remove the room from rooms list
         if(this.users.length == 0)
         {
+            console.log("room scrubbed");
             delete rooms[this.roomName];
         }
 
