@@ -20,16 +20,25 @@ export default class wordInput extends Component {
     event.preventDefault();
     console.log(this.state.fieldValue);
     this.props.socket.emit('submitWord', this.state.fieldValue);
+    this.setState({
+      fieldValue: ''
+    });
   }
 
   render() {
-    return(
-      <form onSubmit={this.onSubmit}>
-        <input onChange={this.onInputChange} placeholder="e.g. green" />
-        <span>
-          <button placeholder="Submit my Answer!" type="submit"></button>
-        </span>
-      </form>
-    )
+    if(this.props.active === 'true'){
+      return(
+        <form onSubmit={this.onSubmit}>
+          <input  onChange={this.onInputChange} placeholder="e.g. green" />
+          <span>
+            <button placeholder="Submit my Answer!" type="submit"></button>
+          </span>
+        </form>
+      )
+    } else {
+      return(
+        <h1>Waiting for players...</h1>
+      )
+    }
   }
 }

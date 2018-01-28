@@ -22,8 +22,6 @@ export default (props) => {
 
     <div>
       {users}
-      <h1>Leader: {props.gameDataPassed.roundWinner}</h1>
-      <h1>Current Word: {props.gameDataPassed.currentWord}</h1>
     </div>
   )
 }

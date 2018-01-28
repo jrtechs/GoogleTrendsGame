@@ -32,7 +32,8 @@ class App extends Component {
         progression: 'gameScreen',
         roomUpdateData: payload
       })
-    })
+    });
+
     this.modifyStateToCreateRoom = this.modifyStateToCreateRoom.bind(this);
     this.modifyStateToRoomsScreen = this.modifyStateToRoomsScreen.bind(this);
     this.modifyStateToGameScreen = this.modifyStateToGameScreen.bind(this);
