@@ -5,6 +5,7 @@ import openSocket from 'socket.io-client';
 import NicknameInput from './components/nicknameInput';
 import CreateRoomInput from './components/createRoomInput';
 import RoomList from './components/RoomList';
+import GameScreen from './components/GameScreen';
 
 const socket = openSocket('129.21.91.149:3000');
 
@@ -12,20 +13,29 @@ class App extends Component {
   constructor(props){
     super(props);
 
-    this.state={
+    this.state = {
       progression: 'register',
-      roomsList: []
+      roomsList: [],
+      roomUpdateData: {}
     }
 
     socket.on('sendRooms', payload => {
-      var rooms = payload.rooms;
+      console.log(payload);
       this.setState({
-        progression: 'roomChoose',
-        roomsList: rooms
+        roomsList: payload.rooms,
+        progression: 'roomChoose'
       })
     });
+
+    socket.on('roomUpdate', payload => {
+      this.setState({
+        progression: 'gameScreen',
+        roomUpdateData: payload
+      })
+    })
     this.modifyStateToCreateRoom = this.modifyStateToCreateRoom.bind(this);
     this.modifyStateToRoomsScreen = this.modifyStateToRoomsScreen.bind(this);
+    this.modifyStateToGameScreen = this.modifyStateToGameScreen.bind(this);
   }
 
   modifyStateToCreateRoom() {
@@ -36,16 +46,15 @@ class App extends Component {
 
   modifyStateToGameScreen() {
     this.setState({
-      progression: ''
-    })
+      progression: 'gameScreen'
+    });
   }
 
   modifyStateToRoomsScreen(){
     this.setState({
       progression: 'roomChoose'
-    })
+    });
   }
-
 
   render() {
     if (this.state.progression === 'register') {
@@ -54,12 +63,16 @@ class App extends Component {
       )
     } else if(this.state.progression === 'roomChoose') {
         return(
-          <RoomList stateModifier={this.modifyStateToCreateRoom} roomArray = {this.state.roomsList}/>
+          <RoomList socket = {socket} stateModifier={this.modifyStateToCreateRoom} roomsArray = {this.state.roomsList} />
         )
 
     } else if (this.state.progression === 'createRoom') {
       return(
-        <CreateRoomInput goBack={this.modifyStateToRoomsScreen} socket = {socket}/>
+        <CreateRoomInput  goToRoom={this.modifyStateToGameScreen} socket = {socket} />
+      )
+    } else if (this.state.progression === 'gameScreen') {
+      return(
+        <GameScreen gameData={this.state.roomUpdateData} />
       )
     }
   }

@@ -6,7 +6,7 @@ class wordInput extends Component {
 
     this.state={fieldValue:''}
 
-    //this.onInputChange = this.onInputChange.bind(this);
-    //this.onInputChange
+    this.onInputChange = this.onInputChange.bind(this);
+    this.onInputChange
   }
 }

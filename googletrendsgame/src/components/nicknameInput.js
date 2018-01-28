@@ -19,6 +19,7 @@ export default class NicknameInput extends Component {
       event.preventDefault();
 
       this.props.socket.emit('register', this.state.fieldValue);
+      console.log("Sent Registration.")
       this.setState({fieldValue: ''})
   }
 
