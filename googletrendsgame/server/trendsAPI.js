@@ -72,6 +72,7 @@ module.exports=
         desc: returns a list of tuples (date, value) representing word's
         popularity for the past year
         */
+        /*
         getYearStats: async function(word){
           var ret = [];
 
@@ -84,5 +85,6 @@ module.exports=
 
             return ret;
         }
+        */
 
      };
