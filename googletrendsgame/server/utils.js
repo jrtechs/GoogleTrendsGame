@@ -1,6 +1,6 @@
 
 var fs = require('fs');
-const WORD_FILE_PATH = '../word_selection/words.txt';
+const WORD_FILE_PATH = '../../words/words.txt';
 
 //loads words from word file
 var words = [];

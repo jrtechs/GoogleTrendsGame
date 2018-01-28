@@ -30,32 +30,6 @@ module.exports=
             return true;
         },
 
-        generateSendRoomsJSON : function(rooms)
-        {
-            var obj = new Object();
-            obj.rooms = [];
-
-            rooms.forEach(function(r)
-            {
-                var roomObj = new Object();
-
-                if(r.password.password == null)
-                {
-                    roomObj.passwordBool = false;
-                }
-                else
-                {
-                    roomObj.passwordBool = r.password;
-                }
-                roomObj.capacity = r.capacity;
-                roomObj.occupents = r.users.length;
-
-                obj.rooms.push(roomObj);
-
-            });
-
-            return obj;
-        },
 
         getOpenIndex : function(rooms)
         {
