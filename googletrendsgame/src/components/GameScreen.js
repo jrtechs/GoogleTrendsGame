@@ -30,7 +30,7 @@ export default class GameScreen extends Component{
           return(
             <div>
               <h1>Round: {this.props.gameData.round}</h1>
-
+              <h1>Current Word: {this.props.gameData.currentWord}</h1>
               <UserList gameDataPassed={this.props.gameData} />
               <WordInput active='true' socket={this.props.socket} />
             </div>
