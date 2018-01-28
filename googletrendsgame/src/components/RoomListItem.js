@@ -39,7 +39,7 @@ render(){
         <h3>{this.props.occupancy}/{this.props.capacity}</h3>
         <h5>Private</h5>
         <input onChange={this.onInputChange} placeholder="Password"></input>
-        <button type='submit' onClick={this.props.socket.emit('joinRoom', {roomName: this.props.roomName, password: this.state.term })}>Join Room</button>
+        <button type='submit' onClick={this.buttonClickHandler}>Join Room</button>
       </div>
     )
   }

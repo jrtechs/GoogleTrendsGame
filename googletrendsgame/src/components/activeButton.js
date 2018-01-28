@@ -26,6 +26,16 @@ export default class activeButton extends Component {
             <button disabled>Enter password (optional) and capacity to create a room.</button>
           )
         }
+      case 'inputWord':
+        if(this.props.input != '' && this.props.input <= 20){
+          return(
+            <button>Submit my answer!</button>
+          )
+        } else {
+          return(
+            <button disabled>Enter a term!</button>
+          )
+        }
     }
   }
 

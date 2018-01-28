@@ -72,7 +72,7 @@ class App extends Component {
       )
     } else if (this.state.progression === 'gameScreen') {
       return(
-        <GameScreen gameData={this.state.roomUpdateData} />
+        <GameScreen socket = {socket} gameData={this.state.roomUpdateData} />
       )
     }
   }

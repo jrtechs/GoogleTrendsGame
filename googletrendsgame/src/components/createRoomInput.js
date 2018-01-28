@@ -25,7 +25,7 @@ export default class CreateRoomInput extends Component {
 
   sendRoomData(event){
     event.preventDefault();
-
+     console.log("sendRoomData called");
     this.props.socket.emit('createRoom', {password: this.state.passwordFieldValue, capacity: this.state.capacityFieldValue});
     this.setState({ passwordFieldValue: '', capacityFieldValue: '' });
     this.props.socket.emit('joinRoom', {})

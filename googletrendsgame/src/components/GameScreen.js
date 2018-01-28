@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import UserList from './UserList';
+import WordInput from './wordInput';
 
 export default class GameScreen extends Component{
   constructor(props){
@@ -23,7 +24,10 @@ export default class GameScreen extends Component{
 
     render(){
       return(
-        <UserList gameDataPassed={this.props.gameData} userArray = {this.props.gameData.users} />
+        <div>
+          <UserList gameDataPassed={this.props.gameData} userArray = {this.props.gameData.users} />
+          <WordInput socket={this.props.socket}/>
+        </div>
       )
     };
   }
