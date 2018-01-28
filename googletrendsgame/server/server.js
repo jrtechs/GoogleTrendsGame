@@ -73,25 +73,25 @@ var room = function(capacityP, pass, owner)
         var countInner = 0;
         var countSwap = 0;
 
-        var swapped;
-        do
-        {
-            countOuter++;
-            swapped = false;
-            for(var i = 0; i < result.users.length; i++)
-            {
-                countInner++;
-                if(result.users[i].score && result.users[i + 1].score &&
-                    result.users[i].score > result.users[i + 1].score)
-                {
-                    countSwap++;
-                    var temp = result.users[i];
-                    result.users[i] = result.users[j];
-                    result.users[j] = temp;
-                    swapped = true;
-                }
-            }
-        } while(swapped);
+        // var swapped;
+        // do
+        // {
+        //     countOuter++;
+        //     swapped = false;
+        //     for(var i = 0; i < result.users.length; i++)
+        //     {
+        //         countInner++;
+        //         if(result.users[i].score && result.users[i + 1].score &&
+        //             result.users[i].score > result.users[i + 1].score)
+        //         {
+        //             countSwap++;
+        //             var temp = result.users[i];
+        //             result.users[i] = result.users[j];
+        //             result.users[j] = temp;
+        //             swapped = true;
+        //         }
+        //     }
+        // } while(swapped);
 
 
         result.gameState = this.state;
@@ -221,9 +221,9 @@ var room = function(capacityP, pass, owner)
             this.currentRound++;
             this.users.forEach(function(u)
             {
-                u.sumbission = '';
+                u.submission = '';
             });
-            this.currentRound = this.words.pop();
+            this.currentWord = this.words.pop();
             this.state = 2;
         }
         this.sendRoomUpdate();
@@ -232,7 +232,6 @@ var room = function(capacityP, pass, owner)
     //updates room variables
     this.update = function()
     {
-        console.log("update methed called");
         switch(this.state)
         {
             case 1: //waiting for users to join
@@ -246,20 +245,23 @@ var room = function(capacityP, pass, owner)
             case 2: // waiting for responses
             {
                 var flag = true;
+                var test = "";
                 this.users.forEach(function(u)
                 {
-                    if(u.sumbission === '')
+                    test+=u.submission;
+                    if(u.submission === '')
                     {
                         flag = false;
                     }
                 });
+                console.log("big stuff " + test);
                 if(flag)
                 {
-                    this.state =3;
-
-                    setTimeout(function() {
-                        this.newRound();
-                    }, 4000);
+                    this.state = 3;
+                    this.newRound();
+                    // setTimeout(function() {
+                    //
+                    // }, 4000);
                 }
                 break;
             }
@@ -278,7 +280,7 @@ var room = function(capacityP, pass, owner)
                 console.log("You don goof up")
             }
         }
-        console.log(this.state + "uuuuuuuuuuuuuuuuu");
+        console.log(this.state + " state");
         this.sendRoomUpdate();
     }
     this.addUser(owner);
@@ -301,7 +303,7 @@ var player = function(s)
     this.room = null;
 
     //the word the user selected for current round
-    this.sumbission = '';
+    this.submission = '';
 
     this.roundScore = 0;
 
@@ -318,7 +320,7 @@ var player = function(s)
         var result = new Object();
         result.name = this.name;
         result.score = this.score;
-        result.word = this.sumbission;
+        result.word = this.submission;
 
         return result;
     }
@@ -332,22 +334,24 @@ var player = function(s)
         var w = data + " " + this.room.currentWord;
         this.sumbission = data;
 
-        console.log(w);
+        //console.log(w);
 
-        trendingAPI.getPopularity(w).then(function(result)
+        this.room.update();
+
+        return new Promise(function(resolve, reject)
         {
-            // var obj = new Object();
-            // obj.word = w;
-            // obj.score = result;
-            // this.log.push(obj);
-            console.log("api result for " + result);
-            this.roundScore = result;
-            this.score += result;
+            trendingAPI.getPopularity(w).then(function(result)
+            {
+                // var obj = new Object();
+                // obj.word = w;
+                // obj.score = result;
+                // this.log.push(obj);
+                console.log("api result for " + result + w);
 
-            console.print(this.room);
-            this.room.update();
+                resolve(result);
+            })
+        });
 
-        })
 
     }
 }
@@ -428,9 +432,7 @@ io.on('connection', function(socket)
      */
     socket.on('register', function(data)
     {
-        console.log("Register event called");
-        console.log(data);
-        console.log("  ");
+        console.log(data + " registered");
 
         //checks for user name in use
         //if(serverUtils.userAvailable(data, players))
@@ -459,9 +461,9 @@ io.on('connection', function(socket)
      */
     socket.on('createRoom', function(data)
     {
-        console.log("create room event called");
-        console.log(data);
-        console.log("  ");
+        console.log(data + "create room");
+        // console.log(data);
+        // console.log("  ");
         rooms[p.name] = new room(data.capacity, data.password, p);
 
         //sends updated room list to all users not in a room
@@ -490,11 +492,8 @@ io.on('connection', function(socket)
      */
     socket.on('joinRoom', function(data)
     {
-        console.log("join room event called");
-        console.log(data);
-        console.log("  ");
+        console.log(p.name + " joined room " + data.name);
 
-        console.log(rooms);
 
         if(rooms[data.roomName] != null && rooms[data.roomName].canJoin(data.password))
         {
@@ -516,10 +515,14 @@ io.on('connection', function(socket)
     socket.on('submitWord', function(data)
     {
         console.log("submitWord called");
-        console.log(data);
-        console.log("  ");
 
-        p.selectWord(data);
+        p.selectWord(data).then(function(score)
+        {
+            p.roundScore = score;
+            p.score += score;
+            p.submission = data;
+            p.room.update();
+        })
     });
 
     //Whenever someone disconnects
