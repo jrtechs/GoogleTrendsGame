@@ -1,8 +1,8 @@
-//
-
 const mysql = require('mysql');
 
 const sanitizer = require('sanitizer');
+
+var Promise = require('promise');
 
 module.exports=
     {
@@ -27,6 +27,18 @@ module.exports=
                     }
                     resolve(result.insertId);
                 });
+            })
+        },
+
+        /**
+         * Insert all of the user's data into the sql database
+         * @param player
+         */
+        insertData : function(player)
+        {
+            return new Promise(function(resolve, reject)
+            {
+                var q = "";
             })
         }
     };

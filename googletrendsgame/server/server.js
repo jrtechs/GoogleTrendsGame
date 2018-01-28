@@ -71,25 +71,25 @@ var room = function(capacityP, pass, owner)
         var countInner = 0;
         var countSwap = 0;
 
-        var swapped;
-        do
-        {
-            countOuter++;
-            swapped = false;
-            for(var i = 0; i < result.users.length; i++)
-            {
-                countInner++;
-                if(result.users[i].score && result.users[i + 1].score &&
-                    result.users[i].score > result.users[i + 1].score)
-                {
-                    countSwap++;
-                    var temp = result.users[i];
-                    result.users[i] = result.users[j];
-                    result.users[j] = temp;
-                    swapped = true;
-                }
-            }
-        } while(swapped);
+        // var swapped;
+        // do
+        // {
+        //     countOuter++;
+        //     swapped = false;
+        //     for(var i = 0; i < result.users.length; i++)
+        //     {
+        //         countInner++;
+        //         if(result.users[i].score && result.users[i + 1].score &&
+        //             result.users[i].score > result.users[i + 1].score)
+        //         {
+        //             countSwap++;
+        //             var temp = result.users[i];
+        //             result.users[i] = result.users[j];
+        //             result.users[j] = temp;
+        //             swapped = true;
+        //         }
+        //     }
+        // } while(swapped);
 
 
         result.gameState = this.state;
@@ -120,6 +120,7 @@ var room = function(capacityP, pass, owner)
         var message = this.generateRoomUpdate();
         this.users.forEach(function(u)
         {
+            console.log("room update called");
             u.socket.emit('roomUpdate', message);
             console.log(message);
         });
@@ -307,6 +308,8 @@ var player = function(s)
         result.name = this.name;
         result.score = this.score;
         result.word = this.sumbission;
+
+        return result;
     }
 
     /**
@@ -384,6 +387,12 @@ var io = require('socket.io')(http);
 
 const port = 3000;
 
+
+app.get('/', function(req, res)
+{
+    console.log("err");
+    res.sendfile('index.html');
+});
 
 //Whenever someone connects this gets executed
 io.on('connection', function(socket)

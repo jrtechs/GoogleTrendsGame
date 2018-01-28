@@ -18,6 +18,8 @@ npm install promise
 ##Database Construction
 create database googleTrends;
 
+use googleTrends;
+
 create table users(
   user_id mediumint unsigned not null AUTO_INCREMENT,
   name varchar(30) not null,
@@ -28,5 +30,9 @@ create table data(
   data_id mediumint unsigned not null AUTO_INCREMENT,
   user_id mediumint unsigned not null,
   word varchar(100) not null,
+  score mediumint not null,
   primary key(data_id)
 );
+
+
+grant all on googleTrends.* to trendingUser@localhost identified by "password";
