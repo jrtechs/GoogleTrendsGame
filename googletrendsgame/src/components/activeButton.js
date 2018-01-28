@@ -1,16 +1,30 @@
 import React, { Component } from 'react';
+import ROOM_CAPACITY from '../App'
 
 export default class activeButton extends Component {
 
   render(){
-    if (this.props.input != ''){
-      return(
-        <button>Let's play!</button>
-      )
-    } else {
-      return(
-        <button>Enter a nickname.</button>
-      )
+    switch (this.props.type) {
+      case 'register':
+        if(this.props.input != ''){
+          return(
+            <button>Let's play!</button>
+          )
+        } else {
+          return(
+            <button disabled>Enter a nickname to play.</button>
+          )
+        }
+      case 'createRoom':
+        if(this.props.passInput != '' && this.props.capacityInput != '' && this.props.capacityInput <= 25 && this.props.capacityInput>=2 && this.props.capacityInput.length <= 2){
+          return(
+            <button>Create Room</button>
+          )
+        } else {
+          return(
+            <button disabled>Enter password and capacity to create a room.</button>
+          )
+        }
     }
   }
 

@@ -3,6 +3,8 @@ import logo from './logo.svg';
 import './App.css';
 import openSocket from 'socket.io-client';
 import NicknameInput from './components/NicknameInput';
+import CreateRoomInput from './components/CreateRoomInput';
+import RoomList from './components/RoomList';
 
 const socket = openSocket('129.21.91.149:3000');
 
@@ -11,27 +13,37 @@ class App extends Component {
     super(props);
 
     this.state={
-      progression: '',
+      progression: 'createRoom',
       roomList: []
     }
   }
 
-  renderRooms(payload) {
-    this.setState({
-      roomList: payload,
-      progression: 'register'
-    });
-    console.log(this.state.roomList);
+  componentDidMount(){
   }
 
-  componentDidMount(){
-
+  stateHandler(){
+    socket.on('sendRooms', payload => this.setState({
+    progression: 'roomChoose',
+    roomList: payload.rooms
+    }));
   }
 
   render() {
-    return(
-      <NicknameInput socket = {socket}/>
-    )
+    if (this.state.progression === 'register') {
+      return(
+        <NicknameInput socket = {socket}/>
+      )
+    } else if(this.state.progression === 'roomChoose') {
+
+        return(
+          <RoomList roomArray = {this.state.roomList}/>
+        )
+
+    } else if (this.state.progression === 'createRoom') {
+      return(
+        <CreateRoomInput socket = {socket}/>
+      )
+    }
   }
 }
 
