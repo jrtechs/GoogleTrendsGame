@@ -3,15 +3,11 @@
 <head>
     <title>Hello world</title>
 </head>
-<script src = "https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+<script src = "/socket.io-client/socket.io.js"></script>
 <script>
-    var socket = io('127.0.0.1:3000');
-    socket.emit('register', 'jeffery');
-    console.log(socket);
-    socket.on('sendRooms',function(data) {
-        document.body.innerHTML = '';
-        document.write(data);
-    });
+
+    var socket = io('129.21.91.149:3000');
+    socket.emit('register', 'big boi');
 </script>
 <body>Hello world</body>
 </html>

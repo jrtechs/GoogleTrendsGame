@@ -1,7 +1,16 @@
+/**
+ * 1-27-18
+ *
+ * Main server file which handles users, rooms -- everythang
+ */
+
+//eh?
 const serverUtils = require('./serverUtils.js');
 
+//used for the getting the word array
 const utils = require("./utils.js");
 
+//gets the trending data
 const trendingAPI = require("./trendsAPI.js");
 
 /**
@@ -49,6 +58,7 @@ var room = function(capacityP, pass, owner)
     this.generateRoomUpdate = function()
     {
         var result = new Object();
+
         result.users = [];
 
         this.users.forEach(function(u)
@@ -56,15 +66,55 @@ var room = function(capacityP, pass, owner)
             result.users.push(u.genJASON());
         });
 
+        //sort the users based on score
+        var countOuter = 0;
+        var countInner = 0;
+        var countSwap = 0;
+
+        var swapped;
+        do
+        {
+            countOuter++;
+            swapped = false;
+            for(var i = 0; i < result.users.length; i++)
+            {
+                countInner++;
+                if(result.users[i].score && result.users[i + 1].score &&
+                    result.users[i].score > result.users[i + 1].score)
+                {
+                    countSwap++;
+                    var temp = result.users[i];
+                    result.users[i] = result.users[j];
+                    result.users[j] = temp;
+                    swapped = true;
+                }
+            }
+        } while(swapped);
+
+
         result.gameState = this.state;
 
-        result.roundWinner = "meh";
+
+        //sets round winner
+        var rWinner = -1;
+
+        for(var i = 0; i < this.users.length; i++)
+        {
+            if(rWinner < this.users[i].roundScore)
+            {
+                result.roundWinner = this.users[i].name;
+                rWinner = this.users[i].roundScore;
+            }
+        }
 
         result.currentWord = this.currentWord;
 
         return result;
     }
 
+    /**
+     * grabs roomUpdate json and beams it to every user in the channel
+     */
     this.sendRoomUpdate = function()
     {
         var message = this.generateRoomUpdate();
@@ -96,11 +146,9 @@ var room = function(capacityP, pass, owner)
         console.log(this.users);
 
         this.sendRoomUpdate();
-
     }
 
     this.addUser(owner);
-
 
 
     /**
@@ -130,10 +178,11 @@ var room = function(capacityP, pass, owner)
         //if room is empty remove the room from rooms list
         if(this.users.length == 0)
         {
-            rooms.remove(this.roomName);
+            delete rooms[this.roomName];
         }
-    }
 
+        this.update();
+    }
 
     /**
      * Whether or not a user can join this room -- checks for number of people are
@@ -153,6 +202,9 @@ var room = function(capacityP, pass, owner)
         }
     }
 
+    /**
+     * starts new round for the room -- called once all the players have submitted
+     */
     this.newRound = function()
     {
         if(this.words.length == 0)
@@ -169,6 +221,7 @@ var room = function(capacityP, pass, owner)
             this.currentRound = this.words.pop();
             this.state = 2;
         }
+        this.sendRoomUpdate();
     }
 
     //updates room variables
@@ -197,7 +250,6 @@ var room = function(capacityP, pass, owner)
                 if(flag)
                 {
                     this.state =3;
-                    this.sendRoomUpdate();
 
                     setTimeout(function() {
                         this.newRound();
@@ -219,12 +271,11 @@ var room = function(capacityP, pass, owner)
                 console.log("You don goof up")
             }
         }
+        this.sendRoomUpdate();
     }
 
 }
 
-//list of all the rooms
-var rooms = {};
 
 var player = function(s)
 {
@@ -242,6 +293,8 @@ var player = function(s)
 
     //the word the user selected for current round
     this.sumbission = '';
+
+    this.roundScore = 0;
 
     /**
      * generate the json object used in 'roomUpdate' socket io event
@@ -266,15 +319,20 @@ var player = function(s)
 
         trendingAPI.getPopularity(data + " " + this.room.currentWord).then(function(result)
         {
+            this.roundScore = result;
             this.score += result;
             console.log("api result for " + result);
             this.room.update();
         })
     }
 }
-//list of all players --accessed using names like a dic
-var players = {};
 
+
+/**
+ * Generates json sent to user on 'sendRooms'
+ *
+ * return [{name: passwordBool: capacity: occupants: }]
+ */
 var generateSendRoomsJSON = function()
 {
     var obj = new Object();
@@ -290,16 +348,18 @@ var generateSendRoomsJSON = function()
         {
             var roomObj = new Object();
 
+            roomObj.name = key;
+
             if(rooms[key].password == null)
             {
                 roomObj.passwordBool = false;
             }
             else
             {
-                roomObj.passwordBool = rooms[key].password;
+                roomObj.passwordBool = true;
             }
             roomObj.capacity = rooms[key].capacity;
-            roomObj.occupents = rooms[key].users.length;
+            roomObj.occupants = rooms[key].users.length;
 
             obj.rooms.push(roomObj);
         }
@@ -307,13 +367,16 @@ var generateSendRoomsJSON = function()
         {
             console.log("would not tough it with a 10ft pole");
         }
-
-
     });
 
     return obj;
 }
 
+//list of all players --accessed using names like a dic
+var players = {};
+
+//list of all the rooms
+var rooms = {};
 
 var app = require('express')();
 var http = require('http').Server(app);
@@ -367,7 +430,6 @@ io.on('connection', function(socket)
         console.log("  ");
         rooms[p.name] = new room(data.capacity, data.password, p);
 
-
     });
 
     /**
@@ -388,7 +450,7 @@ io.on('connection', function(socket)
         }
         else
         {
-            socket.emit('registerFailed', 'Failed connecting to room');
+            socket.emit('joinFailed', 'Failed connecting to room');
         }
         console.log(rooms);
     });
@@ -420,7 +482,7 @@ io.on('connection', function(socket)
         }
 
         //players[p.name] = null;
-        players.remove(p.name);
+        delete players[p.name];
 
     });
 });
