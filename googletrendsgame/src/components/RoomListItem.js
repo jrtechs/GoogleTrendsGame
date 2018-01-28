@@ -9,7 +9,7 @@ export default (props) => {
   }
   return(
     <div>
-      <h1>{props.roomName}</h1>
+      <h1>{props.roomName}'s Room</h1>
       <h3>{props.occupancy}/{props.capacity}</h3>
       <h5>{privateString}</h5>
     </div>
