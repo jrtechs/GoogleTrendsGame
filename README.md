@@ -15,6 +15,7 @@ npm install mysql
 npm install sanitizer
 npm install google-trends-api
 npm install promise
+npm install async
 ````
 
 ##Database Construction
