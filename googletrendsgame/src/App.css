@@ -1,28 +1,326 @@
-.App {
-  text-align: center;
-}
+body {
+  -moz-osx-font-smoothing: grayscale;
+  background: #B9B9B9;
+  background: #FFF;
+  color: #0459ed; }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
-}
-
-.App-header {
-  background-color: #222;
-  height: 150px;
+.logo {
+  width: auto;
+  flex: 0;
   padding: 20px;
-  color: white;
+  color: #0459ed;
+  font-size: 50px;
+  text-transform: uppercase;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  background: #0459ed;
+  color: #FFF; }
+
+.logo {
+  float: left;
+  margin: 0 0 60px 40px;
+  font-size: 30px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px; }
+  .logo:hover {
+    color: #FFF;
+    text-decoration: none; }
+  .logo div {
+    line-height: 30px; }
+
+a {
+  color: #b3b3b3; }
+  a:hover {
+    color: #999999; }
+
+.button--enter, .game__submit {
+  height: 70px;
+  width: 100%;
+  margin-top: 0em;
+  border: 0;
+  outline: 0;
+  font-size: 20px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500; }
+
+.button--enter, .game__submit {
+  color: #FFF;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #0459ed;
+  transition: all 0.5s; }
+  .button--enter:hover, .game__submit:hover {
+    background: #0346bb;
+    transform: scale(1.05); }
+
+.button--enter,
+.button__top,
+.button__bottom {
+  transition: all 0.7s; }
+
+.button--enter .button__top,
+.button--enter .button__bottom {
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+  text-align: center;
+  font-size: 20px;
+  display: block; }
+
+.button--enter.is--active .button__top {
+  margin-top: -140px; }
+
+.button__top {
+  background-color: #0459ed;
+  color: #FFF;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+  text-align: center;
+  font-size: 20px;
+  display: block;
 }
 
-.App-title {
-  font-size: 1.5em;
+.login__input:focus{
+  outline: none;
+
 }
 
-.App-intro {
-  font-size: large;
-}
+.button__bottom {
+  color: #FFF;
+  background: #30ce4b; }
+  .button__bottom:hover {
+    text-decoration: none;
+    color: #FFF; }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
+.button__spacer {
+  background: linear-gradient(#0459ed, #30ce4b);
+  height: 70px;
+  width: 100%; }
+
+.btn-5 {
+  border: 0 solid;
+  outline: 1px solid;
+  outline-color: rgba(255, 255, 255, 0.5);
+  outline-offset: 0px;
+  text-shadow: none;
+  transition: all 1250ms cubic-bezier(0.19, 1, 0.22, 1); }
+
+.game__sidebar:hover .btn-5 {
+  outline-color: rgba(255, 255, 255, 0);
+  outline-offset: 15px;
+  text-shadow: 1px 1px 2px #427388; }
+
+.field--nickname input {
+  font-size: 20px;
+  padding: 20px;
+  border: none;
+  border: 1px solid #ddd;
+  border-radius: 8px; }
+
+.field--nickname label {
+  font-size: 20px; }
+
+.login__input {
+  float: left;
+  padding: 0 0 15px 0;
+  padding-left: 0;
+  font-size: 100px;
+  font-family: 'Josefin Sans', sans-serif;
+  vertical-align: baseline;
+  min-width: 100px;
+  margin: 0 15px 10px 0;
+  background: transparent;
+  box-shadow: 0;
+  font-weight: 300;
+  border: none;
+  color: #4286fc; }
+
+.lobby__rooms {
+  padding: 0;
+  margin: 0; }
+
+.lobby__room {
+  z-index: 2;
+  height: auto;
+  overflow: auto;
+  padding: 15px;
+  margin: -2px 0 0 0;
+  list-style: none;
+  font-size: 24px;
+  background: #FFF;
+  color: #0459ed;
+  border: 2px solid #0459ed;
+  transition: all 0.5s; }
+  .lobby__room:hover {
+    transform: scale(1.05); }
+  .lobby__room:first-child {
+    z-index: 1;
+    padding: 15px 0;
+    border: none;
+    font-weight: 600;
+    background: transparent; }
+    .lobby__room:first-child:hover {
+      transform: scale(1); }
+    .lobby__room:first-child .lobby__room-status {
+      background: transparent;
+      color: #0459ed; }
+
+.lobby__room-name {
+  width: 50%;
+  float: left;
+  display: block;}
+
+.lobby__room-occupancy {
+  width: 40%;
+  text-align: center;
+  float: left;
+  display: block; }
+
+.lobby__room-status {
+  padding: 3px 10px 2px;
+  float: right;
+  text-align: right;
+  width: 10%;
+  text-align: center;
+  background: #0459ed;
+  color: #FFF;
+  border-radius: 8px;
+  border: none;
+  font-size: 20px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  float: left;
+  display: block; }
+
+.game [class^="col"] {
+  height: 100vh; }
+.game__main {
+  display: flex;
+  flex-direction: column;
+  padding: 0 40px 40px;
+  clear: both; }
+.game__sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  color: #FFF;
+  background: #0459ed;
+  border: 40px solid #fff;
+  border-right-width: 80px;
+  overflow: hidden;
+  border-radius: 8px; }
+
+.game__room {
+  z-index: 2;
+  margin: 0 0 5px 0;
+  font-size: 24px;
+  font-weight: 400;
+  font-family: 'Poppins', sans-serif; }
+
+.game__capacity {
+  z-index: 2;
+  margin: 0 0 20px; }
+
+.game__players {
+  z-index: 2;
+  padding: 0;
+  margin: 0; }
+
+.game__player {
+  margin: 0 0 5px 0;
+  list-style-position: inside; }
+
+.game__player-name {
+  margin: 0 10px 0 0;
+  font-weight: 700; }
+
+.game__player-ready {
+  float: right; }
+
+.scene {
+  z-index: 1;
+  top: 0;
+  left: 0; }
+
+.game__user-name,
+.game__user-score {
+  text-align: center; }
+
+.game__user-name {
+  margin: 0 0 20px 0;
+  font-size: 32px;
+  font-weight: 400; }
+
+.game__user-score {
+  z-index: 2;
+  width: auto;
+  padding: 20px;
+  margin: 20px 0 25px;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  color: #FFF;
+  border: 2px solid #FFF; }
+  .game__user-score div + div {
+    font-size: 24px; }
+
+.game__round {
+  z-index: 2;
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif; }
+
+.game__phrase {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 30px 0; }
+
+.game__phrase--entry,
+.game__phrase--clue {
+  float: left;
+  padding: 0 0 15px 0;
+  padding-left: 0;
+  font-size: 100px;
+  font-family: 'Josefin Sans', sans-serif;
+  vertical-align: baseline; }
+
+.game__phrase--entry {
+  min-width: 100px;
+  margin: 0 15px 10px 0;
+  border-right: none;
+  background: transparent;
+  box-shadow: 0;
+  text-align: right;
+  font-weight: 300;
+  border-bottom: 2px dashed #4286fc;
+  color: #4286fc; }
+  .game__phrase--entry:focus {
+    outline: 0; }
+  .game__phrase--entry[contenteditable="true"]:focus, .game__phrase--entry[contenteditable="true"]:active {
+    color: #0459ed;
+    border-bottom: 2px dashed #0459ed; }
+
+.game__phrase--clue {
+  font-weight: 900; }
+
+.game__submit {
+  margin: 0 0 30px;
+  max-width: 540px; }
+
+.game__exit {
+  text-decoration: underline; }
+
+.game__timer {
+  z-index: 2;
+  float: right;
+  margin: 0 0 20px 0; }
+
+/*# sourceMappingURL=app.css.map */

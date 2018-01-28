@@ -18,30 +18,32 @@ export default class RoomListItem extends Component {
   }
 
   buttonClickHandler(event){
-    this.props.socket.emit('joinRoom', {roomName: this.props.roomName, password: this.state.term})
+    this.props.socket.emit('joinRoom', {roomName: this.props.roomName, password: this.state.term});
   }
 
 
 render(){
-  if (this.props.private === 'false'){
+  if (this.props.private === false){
+    console.log("The public listItem was called")
     return(
-      <div>
-        <h1>{this.props.roomName}'s Room</h1>
-        <h3>{this.props.occupancy}/{this.props.capacity}</h3>
-        <h5>Public</h5>
-        <button type="submit" onClick={this.buttonClickHandler}>Join Room</button>
-      </div>
-    );
+      <li className = 'lobby__room'>
+        <span className="lobby__room-name">{this.props.roomName}'s Room</span>
+        <span className="lobby__room-occupancy">{this.props.occupancy}/{this.props.capacity}</span>
+        <span className="lobby__room-name">Public</span>
+        <span className="lobby__room-status"><button type="submit" onClick={this.buttonClickHandler}>Join Room</button></span>
+      </li>
+    )
   } else {
+    console.log("the private listItem was called")
     return(
-      <div>
-        <h1>{this.props.roomName}'s Room</h1>
-        <h3>{this.props.occupancy}/{this.props.capacity}</h3>
-        <h5>Private</h5>
-        <input onChange={this.onInputChange} placeholder="Password"></input>
-        <button type='submit' onClick={this.buttonClickHandler}>Join Room</button>
-      </div>
+      <li className = 'lobby__room'>
+        <span className="lobby__room-name">{this.props.roomName}'s Room</span>
+        <span className="lobby__room-occupancy">{this.props.occupancy}/{this.props.capacity}</span>
+        <span className="lobby__room-occupancy">Private</span>
+        <span className="field--nickname"><input onChange={this.onInputChange} /></span>
+        <span className="lobby__room-status"><button type="submit" onClick={this.buttonClickHandler}>Join Room</button></span>
+      </li>
     )
   }
-}
+  }
 }

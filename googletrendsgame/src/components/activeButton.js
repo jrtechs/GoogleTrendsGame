@@ -9,11 +9,11 @@ export default class activeButton extends Component {
       case 'register':
         if(this.props.input != ''){
           return(
-            <button>Let's play!</button>
+            <button className="button__top">Let's play!</button>
           )
         } else {
           return(
-            <button disabled>Enter a nickname to play.</button>
+            <button className="button__top" disabled>Enter a nickname to play.</button>
           )
         }
       case 'createRoom':
