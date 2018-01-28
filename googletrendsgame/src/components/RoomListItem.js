@@ -1,10 +1,11 @@
 import React from 'react';
 
 export default (props) => {
+  var privateString =''
   if (props.private = false){
-    const privateString = "Public"
+    privateString = "Public"
   } else {
-    const privateString = "Private"
+    privateString = "Private"
   }
   return(
     <div>

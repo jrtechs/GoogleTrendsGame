@@ -13,19 +13,26 @@ class App extends Component {
     super(props);
 
     this.state={
-      progression: 'createRoom',
-      roomList: []
+      progression: 'register',
+      roomsList: []
     }
+    this.modifyStateToCreateRoom = this.modifyStateToCreateRoom.bind(this);
+  }
+
+  modifyStateToCreateRoom() {
+    this.setState({
+      progression: 'createRoom'
+    });
   }
 
   componentDidMount(){
-  }
-
-  stateHandler(){
-    socket.on('sendRooms', payload => this.setState({
-    progression: 'roomChoose',
-    roomList: payload.rooms
-    }));
+    socket.on('sendRooms', payload => {
+      const rooms = payload.rooms;
+      this.setState({
+        progression: 'roomChoose',
+        roomsList: rooms
+      })
+    });
   }
 
   render() {
@@ -34,9 +41,8 @@ class App extends Component {
         <NicknameInput socket = {socket}/>
       )
     } else if(this.state.progression === 'roomChoose') {
-
         return(
-          <RoomList roomArray = {this.state.roomList}/>
+          <RoomList stateModifier={this.modifyStateToCreateRoom} roomArray = {this.state.roomsList}/>
         )
 
     } else if (this.state.progression === 'createRoom') {
