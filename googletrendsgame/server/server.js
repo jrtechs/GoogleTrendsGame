@@ -2,6 +2,8 @@ const serverUtils = require('./serverUtils.js');
 
 const utils = require("./utils.js");
 
+const trendingAPI = require("./trendsAPI.js");
+
 /**
  * Object used for storing rooms
  * @param capacityP -- the number of people that can be in room
@@ -16,7 +18,7 @@ var room = function(capacityP, pass, owner)
     //name of the room
     this.roomName = owner.name;
 
-    this.addUser(owner);
+
 
     //list of words used in the game
     //7 for now will change later to be room specific
@@ -42,12 +44,47 @@ var room = function(capacityP, pass, owner)
     this.state = 1;
 
     /**
+     * creates json to send in the 'roomUpdate' socket event
+     *
+     * {users: gameState: roundWinner: currentWord: }
+     */
+    this.generateRoomUpdate = function()
+    {
+        var result = new Object();
+        result.users = [];
+
+        this.users.forEach(function(u)
+        {
+            result.users.push(u.genJASON());
+        });
+
+        result.gameState = this.state;
+
+        result.roundWinner = "meh";
+
+        result.currentWord = this.currentWord;
+
+        return result;
+    }
+
+    this.sendRoomUpdate = function()
+    {
+        var message = this.generateRoomUpdate();
+        this.users.forEach(function(u)
+        {
+            u.socket.emit('roomUpdate', message);
+            console.log(message);
+        });
+    }
+
+    /**
      * adds a user to a room
      * @param p
      * return 0 if they could join
      */
     this.addUser = function(player)
     {
+        console.log("user added");
         //check if room is not full
         this.users.push(player);
         player.room = this;
@@ -57,18 +94,16 @@ var room = function(capacityP, pass, owner)
             this.state = 2;
         }
 
+        console.log("rooms users");
+        console.log(this.users);
+
         this.sendRoomUpdate();
 
     }
 
-    this.sendRoomUpdate = function()
-    {
-        var message = this.generateRoomUpdate();
-        this.users.forEach(function(u)
-        {
-            u.socket.emit('roomUpdate', message);
-        });
-    }
+    this.addUser(owner);
+
+
 
     /**
      * Removes a specific user from the room and adjusts the size of the array
@@ -77,6 +112,7 @@ var room = function(capacityP, pass, owner)
      */
     this.removeUser = function(p)
     {
+        console.log("remove users fnc called");
         var temp = new Array();
 
         for(var i = 0; i < temp.length; i++)
@@ -96,32 +132,10 @@ var room = function(capacityP, pass, owner)
         //if room is empty remove the room from rooms list
         if(this.users.length == 0)
         {
-            rooms[this.roomName] = null;
+            //rooms[this.roomName] = null;
         }
     }
 
-    /**
-     * creates json to send in the 'roomUpdate' socket event
-     *
-     * {users: gameState: roundWinner: currentWord: }
-     */
-    this.generateRoomUpdate = function()
-    {
-        var result = new Object();
-        result.users = [];
-        this.users.forEach(function(u)
-        {
-            result.users.push(u.genJASON());
-        });
-
-        result.gameState = this.state;
-
-        result.roundWinner = "meh";
-
-        result.currentWord = this.currentWord;
-
-        return result;
-    }
 
     /**
      * Whether or not a user can join this room -- checks for number of people are
@@ -141,10 +155,72 @@ var room = function(capacityP, pass, owner)
         }
     }
 
+    this.newRound = function()
+    {
+        if(this.words.length == 0)
+        {
+            this.state == 4;
+        }
+        else
+        {
+            this.currentRound++;
+            this.users.forEach(function(u)
+            {
+                u.sumbission = '';
+            });
+            this.currentRound = this.words.pop();
+            this.state = 2;
+        }
+    }
+
     //updates room variables
     this.update = function()
     {
+        switch(this.state)
+        {
+            case 1: //waiting for users to join
+            {
+                if(this.users.length == this.capacity)
+                {
+                    this.newRound();
+                }
+                break;
+            }
+            case 2: // waiting for responses
+            {
+                var flag = true;
+                this.users.forEach(function(u)
+                {
+                    if(u.sumbission === '')
+                    {
+                        flag = false;
+                    }
+                });
+                if(flag)
+                {
+                    this.state =3;
+                    this.sendRoomUpdate();
 
+                    setTimeout(function() {
+                        this.newRound();
+                    }, 4000);
+                }
+                break;
+            }
+            case 3: // showing results -- time out fnc
+            {
+                console.log("error &&&&&&&&&&&&&&&&&&");
+                break;
+            }
+            case 4: //game over display final result
+            {
+                break;
+            }
+            default:
+            {
+                console.log("You don goof up")
+            }
+        }
     }
 
 }
@@ -167,7 +243,7 @@ var player = function(s)
     this.room = null;
 
     //the word the user selected for current round
-    this.sumbission = null;
+    this.sumbission = '';
 
     /**
      * generate the json object used in 'roomUpdate' socket io event
@@ -190,11 +266,55 @@ var player = function(s)
     {
         this.sumbission = data;
 
-        this.room.update();
+        trendingAPI.getPopularity(data + " " + this.room.currentWord).then(function(result)
+        {
+            this.score += result;
+            console.log("api result for " + result);
+            this.room.update();
+        })
     }
 }
 //list of all players --accessed using names like a dic
 var players = {};
+
+var generateSendRoomsJSON = function()
+{
+    var obj = new Object();
+    obj.rooms = [];
+
+    //rooms.forEach(function(r)
+
+    Object.keys(rooms).forEach(function(key)
+    {
+        console.log("**************");
+        console.log(key);
+        if(rooms[key] == null)
+        {
+            var roomObj = new Object();
+
+            if(rooms[key].password == null)
+            {
+                roomObj.passwordBool = false;
+            }
+            else
+            {
+                roomObj.passwordBool = rooms[key].password;
+            }
+            roomObj.capacity = rooms[key].capacity;
+            roomObj.occupents = rooms[key].users.length;
+
+            obj.rooms.push(roomObj);
+        }
+        else
+        {
+            console.log("would not tough it with a 10ft pole");
+        }
+
+
+    });
+
+    return obj;
+}
 
 
 var app = require('express')();
@@ -207,7 +327,7 @@ const port = 3000;
 //Whenever someone connects this gets executed
 io.on('connection', function(socket)
 {
-    var player = new player(socket);
+    var p = new player(socket);
 
     console.log('A user connected');
 
@@ -222,16 +342,21 @@ io.on('connection', function(socket)
         //checks for user name in use
         if(serverUtils.userAvailable(data, players))
         {
-            player.name = data;
+            p.name = data;
 
-            players[data] = player;
+            players[data] = p;
 
-            socket.emit('sendRooms', serverUtils.generateSendRoomsJSON(rooms));
+            socket.emit('sendRooms', generateSendRoomsJSON());
+            console.log("send rooms called");
+            console.log(generateSendRoomsJSON());
         }
         else
         {
             socket.emit('registerFailed', 'User name taken');
+            console.log("registration failed sent");
         }
+
+        console.log(player);
     });
 
     /**
@@ -242,7 +367,7 @@ io.on('connection', function(socket)
         console.log("create room event called");
         console.log(data);
         console.log("  ");
-        rooms[player.name] = new room(data.capacity, data.password, player);
+        rooms[p.name] = new room(data.capacity, data.password, p);
 
 
     });
@@ -256,14 +381,18 @@ io.on('connection', function(socket)
         console.log(data);
         console.log("  ");
 
-        if(rooms[data.roomName].canJoin(data.password))
+        console.log(rooms);
+
+        if(rooms[data.roomName] != null && rooms[data.roomName].canJoin(data.password))
         {
-            rooms[data.roomName].addUser(player);
+            rooms[data.roomName].addUser(p);
+            console.log("user joined room");
         }
         else
         {
             socket.emit('registerFailed', 'Failed connecting to room');
         }
+        console.log(rooms);
     });
 
     /**
@@ -274,25 +403,25 @@ io.on('connection', function(socket)
         console.log(data);
         console.log("  ");
 
-        player.selectWord(data);
+        p.selectWord(data);
     });
 
     //Whenever someone disconnects
     socket.on('disconnect', function () {
         console.log('A user disconnected');
 
-        if(rooms[player.name] != null)
+        if(rooms[p.name] != null)
         {
-            rooms[player.name] = null;
+            rooms[p.name] = null;
         }
 
         //leave the room
-        if(player.room != null)
+        if(p.room != null)
         {
-            player.room.removeUser(player);
+            p.room.removeUser(p);
         }
 
-        players[player.name] = null;
+        players[p.name] = null;
 
     });
 });

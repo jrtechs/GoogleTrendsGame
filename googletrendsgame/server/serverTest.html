@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello world</title>
+</head>
+<script src = "https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+<script>
+    var socket = io('127.0.0.1:3000');
+    socket.emit('register', 'jeffery');
+    console.log(socket);
+    socket.on('sendRooms',function(data) {
+        document.body.innerHTML = '';
+        document.write(data);
+    });
+</script>
+<body>Hello world</body>
+</html>
