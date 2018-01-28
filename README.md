@@ -2,6 +2,8 @@
 
 Guess the trends beat your friends
 
+![alt text](http://www.devhumor.com/content/uploads/images/August2017/java-javascript.jpg)
+
 ## Server dependencies
 
 
