@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import openSocket from 'socket.io-client';
-import NicknameInput from './components/NicknameInput';
-import CreateRoomInput from './components/CreateRoomInput';
+import NicknameInput from './components/nicknameInput';
+import CreateRoomInput from './components/createRoomInput';
 import RoomList from './components/RoomList';
 
 const socket = openSocket('129.21.91.149:3000');

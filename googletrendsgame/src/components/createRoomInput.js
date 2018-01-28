@@ -9,7 +9,7 @@ export default class CreateRoomInput extends Component {
       passwordFieldValue: '',
       capacityFieldValue:''
     }
-
+    //test Comment
     this.onInputChangePass = this.onInputChangePass.bind(this);
     this.onInputChangeCapacity = this.onInputChangeCapacity.bind(this);
     this.sendRoomData = this.sendRoomData.bind(this);
