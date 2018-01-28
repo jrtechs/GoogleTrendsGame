@@ -13,6 +13,8 @@ const utils = require("./utils.js");
 //gets the trending data
 const trendingAPI = require("./trendsAPI.js");
 
+//const sqlStuff = require("./sql.js");
+
 /**
  * Object used for storing rooms
  * @param capacityP -- the number of people that can be in room
@@ -40,7 +42,7 @@ var room = function(capacityP, pass, owner)
     this.currentRound = 0;
 
     // the password of the room -- null if no password
-    this.password = null;
+    this.password = pass;
 
     /**
      1 = Waiting for users
@@ -71,25 +73,25 @@ var room = function(capacityP, pass, owner)
         var countInner = 0;
         var countSwap = 0;
 
-        // var swapped;
-        // do
-        // {
-        //     countOuter++;
-        //     swapped = false;
-        //     for(var i = 0; i < result.users.length; i++)
-        //     {
-        //         countInner++;
-        //         if(result.users[i].score && result.users[i + 1].score &&
-        //             result.users[i].score > result.users[i + 1].score)
-        //         {
-        //             countSwap++;
-        //             var temp = result.users[i];
-        //             result.users[i] = result.users[j];
-        //             result.users[j] = temp;
-        //             swapped = true;
-        //         }
-        //     }
-        // } while(swapped);
+        var swapped;
+        do
+        {
+            countOuter++;
+            swapped = false;
+            for(var i = 0; i < result.users.length; i++)
+            {
+                countInner++;
+                if(result.users[i].score && result.users[i + 1].score &&
+                    result.users[i].score > result.users[i + 1].score)
+                {
+                    countSwap++;
+                    var temp = result.users[i];
+                    result.users[i] = result.users[j];
+                    result.users[j] = temp;
+                    swapped = true;
+                }
+            }
+        } while(swapped);
 
 
         result.gameState = this.state;
@@ -146,10 +148,10 @@ var room = function(capacityP, pass, owner)
         console.log("rooms users");
         console.log(this.users);
 
-        this.sendRoomUpdate();
+        this.update();
     }
 
-    this.addUser(owner);
+
 
 
     /**
@@ -265,6 +267,7 @@ var room = function(capacityP, pass, owner)
             }
             case 4: //game over display final result
             {
+                //sqlStuff.dumpRoom(this);
                 break;
             }
             default:
@@ -274,6 +277,7 @@ var room = function(capacityP, pass, owner)
         }
         this.sendRoomUpdate();
     }
+    this.addUser(owner);
 
 }
 
@@ -297,6 +301,9 @@ var player = function(s)
 
     this.roundScore = 0;
 
+    //logs the user data so we can record it to data base at end of round
+    this.log = [];
+
     /**
      * generate the json object used in 'roomUpdate' socket io event
      *
@@ -319,9 +326,14 @@ var player = function(s)
     this.selectWord = function(data)
     {
         this.sumbission = data;
-
-        trendingAPI.getPopularity(data + " " + this.room.currentWord).then(function(result)
+        var w = data + " " + this.room.currentWord;
+        trendingAPI.getPopularity(w).then(function(result)
         {
+            var obj = new Object();
+            obj.word = w;
+            obj.score = result;
+            this.log.push(obj);
+
             this.roundScore = result;
             this.score += result;
             console.log("api result for " + result);
@@ -404,13 +416,15 @@ io.on('connection', function(socket)
     /**
      *Register user nickname/handle (register)	Client => Server
      */
-    socket.on('register', function(data) {
+    socket.on('register', function(data)
+    {
         console.log("Register event called");
         console.log(data);
         console.log("  ");
 
         //checks for user name in use
-        if(serverUtils.userAvailable(data, players))
+        //if(serverUtils.userAvailable(data, players))
+        if(!(data in players))
         {
             p.name = data;
 
@@ -433,11 +447,30 @@ io.on('connection', function(socket)
      *Create Room (createRoom) Client => Server
      * data {password:  , capacity: }
      */
-    socket.on('createRoom', function(data) {
+    socket.on('createRoom', function(data)
+    {
         console.log("create room event called");
         console.log(data);
         console.log("  ");
         rooms[p.name] = new room(data.capacity, data.password, p);
+
+        //sends updated room list to all users not in a room
+        var dd = generateSendRoomsJSON();
+
+        Object.keys(players).forEach(function(key)
+        {
+            if(players[key] != null)
+            {
+                if(players[key].room == null)
+                {
+                    players[key].socket.emit('sendRooms', dd);
+                }
+            }
+            else
+            {
+                console.log("player was null Bad!");
+            }
+        });
 
     });
 
@@ -445,7 +478,8 @@ io.on('connection', function(socket)
      * Room Selection (joinRoom)	Client => Server
      * data {roomName:  , password: }
      */
-    socket.on('joinRoom', function(data) {
+    socket.on('joinRoom', function(data)
+    {
         console.log("join room event called");
         console.log(data);
         console.log("  ");
@@ -467,7 +501,8 @@ io.on('connection', function(socket)
     /**
      * data -- literally a string
      */
-    socket.on('submitWord', function(data) {
+    socket.on('submitWord', function(data)
+    {
         console.log("submitWord called");
         console.log(data);
         console.log("  ");
@@ -476,7 +511,8 @@ io.on('connection', function(socket)
     });
 
     //Whenever someone disconnects
-    socket.on('disconnect', function () {
+    socket.on('disconnect', function ()
+    {
         console.log('A user disconnected');
 
         if(rooms[p.name] != null)
@@ -496,6 +532,7 @@ io.on('connection', function(socket)
     });
 });
 
-http.listen(port, function() {
+http.listen(port, function()
+{
     console.log('listening on *:3000');
 });

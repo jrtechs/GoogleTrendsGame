@@ -4,6 +4,18 @@ const sanitizer = require('sanitizer');
 
 var Promise = require('promise');
 
+const con = mysql.createConnection({
+    host: "localhost",
+    user: "trendingUser",
+    password: "password",
+    database: "googleTrends"
+});
+
+con.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected to database!");
+});
+
 module.exports=
     {
         /**
@@ -38,7 +50,26 @@ module.exports=
         {
             return new Promise(function(resolve, reject)
             {
-                var q = "";
+                var q = "insert into users(name) values('" + player.name + "')";
+                this.insert(q).then(function(keyId)
+                {
+                    player.log.forEach(function(data)
+                    {
+                        var q2 = "insert into data(user_id, word, score) values " +
+                            "('" + keyId + "','" + data.word + "','" + data.score + "')";
+
+                        this.insert(q2);
+                    });
+                    resolve();
+                })
             })
+        },
+
+        dumpRoom: function(room)
+        {
+            room.users.forEach(function(user)
+            {
+                this.insertData(user);
+            });
         }
     };

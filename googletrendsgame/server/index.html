@@ -7,14 +7,26 @@
 
 <script>
     var socket = io();
-    socket.emit('register', 'jeffery');
+    socket.emit('register', 'jeff');
 
     socket.on('sendRooms', function(data)
     {
         console.log("got rooms");
         console.log(data);
-        document.write(data);
+        //document.write(data);
+
+        data.rooms.forEach(function(r)
+        {
+            document.write(r.name)
+            document.write("<br />");
+        });
+        var tt = new Object();
+        tt.roomName = "den";
+        tt.password = "pp";
+        socket.emit('joinRoom', tt);
     });
+
+
 </script>
 <body>Hello world</body>
 </html>
