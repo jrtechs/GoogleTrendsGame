@@ -1,12 +1,3 @@
-import React, {Component} from 'react';
+import React from 'react';
 
-class User extends Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      name: '',
-      score: 0,
-      word: ''
-    }
-  }
-}
+function

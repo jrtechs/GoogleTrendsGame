@@ -25,6 +25,12 @@ class App extends Component {
     });
   }
 
+  modifyStateToGameScreen() {
+    this.setState({
+      progression: ''
+    })
+  }
+
   componentDidMount(){
     socket.on('sendRooms', payload => {
       const rooms = payload.rooms;
