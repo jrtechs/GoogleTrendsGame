@@ -342,13 +342,10 @@ var player = function(s)
         {
             trendingAPI.getPopularity(w).then(function(result)
             {
-                // var obj = new Object();
-                // obj.word = w;
-                // obj.score = result;
-                // this.log.push(obj);
                 console.log("api result for " + result + w);
-
                 resolve(result);
+            }).catch(function(err){
+                console.log(err);
             })
         });
 
