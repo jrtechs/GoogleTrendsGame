@@ -18,8 +18,6 @@ var room = function(capacityP, pass, owner)
     //name of the room
     this.roomName = owner.name;
 
-
-
     //list of words used in the game
     //7 for now will change later to be room specific
     this.words = utils.getRandomWords(7);
