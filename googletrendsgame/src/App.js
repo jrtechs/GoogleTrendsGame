@@ -16,7 +16,16 @@ class App extends Component {
       progression: 'register',
       roomsList: []
     }
+
+    socket.on('sendRooms', payload => {
+      var rooms = payload.rooms;
+      this.setState({
+        progression: 'roomChoose',
+        roomsList: rooms
+      })
+    });
     this.modifyStateToCreateRoom = this.modifyStateToCreateRoom.bind(this);
+    this.modifyStateToRoomsScreen = this.modifyStateToRoomsScreen.bind(this);
   }
 
   modifyStateToCreateRoom() {
@@ -31,15 +40,12 @@ class App extends Component {
     })
   }
 
-  componentDidMount(){
-    socket.on('sendRooms', payload => {
-      const rooms = payload.rooms;
-      this.setState({
-        progression: 'roomChoose',
-        roomsList: rooms
-      })
-    });
+  modifyStateToRoomsScreen(){
+    this.setState({
+      progression: 'roomChoose'
+    })
   }
+
 
   render() {
     if (this.state.progression === 'register') {
@@ -53,7 +59,7 @@ class App extends Component {
 
     } else if (this.state.progression === 'createRoom') {
       return(
-        <CreateRoomInput socket = {socket}/>
+        <CreateRoomInput goBack={this.modifyStateToRoomsScreen} socket = {socket}/>
       )
     }
   }

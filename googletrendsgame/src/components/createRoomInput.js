@@ -9,7 +9,7 @@ export default class CreateRoomInput extends Component {
       passwordFieldValue: '',
       capacityFieldValue:''
     }
-    //test Comment
+
     this.onInputChangePass = this.onInputChangePass.bind(this);
     this.onInputChangeCapacity = this.onInputChangeCapacity.bind(this);
     this.sendRoomData = this.sendRoomData.bind(this);
@@ -36,7 +36,7 @@ export default class CreateRoomInput extends Component {
         <input type="password" placeholder="Password" onChange = {this.onInputChangePass} value={this.state.passwordFieldValue} />
         <input type='number' placeholder="Max room members" onChange = {this.onInputChangeCapacity} value={this.state.capacityFieldValue} />
         <span>
-          <ActiveButton passInput={this.state.passwordFieldValue} capacityInput={this.state.capacityFieldValue} type='createRoom' />
+          <ActiveButton goBack={this.props.goBack} passInput={this.state.passwordFieldValue} capacityInput={this.state.capacityFieldValue} type='createRoom' />
         </span>
       </form>
     )

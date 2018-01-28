@@ -2,7 +2,7 @@ import React from 'react';
 
 export default (props) => {
   var privateString =''
-  if (props.private == false){
+  if (props.private === false){
     privateString = "Public"
   } else {
     privateString = "Private"

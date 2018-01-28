@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import ROOM_CAPACITY from '../App'
+import App from '../App'
+
 
 export default class activeButton extends Component {
 
@@ -16,13 +17,13 @@ export default class activeButton extends Component {
           )
         }
       case 'createRoom':
-        if(this.props.passInput !== '' && this.props.capacityInput !== '' && this.props.capacityInput <= 25 && this.props.capacityInput>=2 && this.props.capacityInput.length <= 2){
+        if(this.props.capacityInput !== '' && this.props.capacityInput <= 25 && this.props.capacityInput>=2 && this.props.capacityInput.length <= 2){
           return(
-            <button>Create Room</button>
+            <button onClick={this.props.goBack}>Create Room</button>
           )
         } else {
           return(
-            <button disabled>Enter password and capacity to create a room.</button>
+            <button disabled>Enter password (optional) and capacity to create a room.</button>
           )
         }
     }
