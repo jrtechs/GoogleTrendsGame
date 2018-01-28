@@ -17,7 +17,7 @@ export default (props) => {
       <div>
         <div>Name: {name}</div>
         <div>Score: {score}</div>
-        <FontAwesome name='check-circle' />
+        <i className="far fa-check-circle"></i>
       </div>
     )
   } else {
@@ -26,7 +26,7 @@ export default (props) => {
       <div>
         <div>Name: {name}</div>
         <div>Score: {score}</div>
-        <FontAwesome name='times-circle' />
+        <i className="far fa-times-circle"></i>
       </div>
     )
   }
