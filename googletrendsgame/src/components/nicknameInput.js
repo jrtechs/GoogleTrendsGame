@@ -25,12 +25,34 @@ export default class NicknameInput extends Component {
 
   render() {
      return(
-       <form onSubmit={this.sendNickname}>
-        <input maxLength="30" placeholder="Enter a nickname..." onChange = {this.onInputChange} value={this.state.fieldValue} />
-        <span>
-          <ActiveButton input = {this.state.fieldValue} type='register' />
-        </span>
-       </form>
+       <div className="container-fluid game">
+         <div className="row">
+
+           <div className="col-xs-12 col-sm-7">
+
+             <a className="logo">
+               <div>WHAT</div>
+               <div>THE </div>
+               <div>TREND?!</div>
+             </a>
+
+             <div className="game__main">
+         <form onSubmit={this.sendNickname}>
+          <input className="login__input" maxLength="30" placeholder="Nickname" onChange = {this.onInputChange} value={this.state.fieldValue} />
+          <span>
+            <ActiveButton input = {this.state.fieldValue} type='register' />
+          </span>
+         </form>
+       </div>
+     </div>
+
+     <div className="col-xs-12 col-sm-5 game__sidebar">
+
+       <canvas className="scene scene--full" id="scene" ></canvas>
+
+     </div>
+   </div>
+ </div>
      )
     }
 }

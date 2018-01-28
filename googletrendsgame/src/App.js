@@ -7,7 +7,7 @@ import CreateRoomInput from './components/createRoomInput';
 import RoomList from './components/RoomList';
 import GameScreen from './components/GameScreen';
 
-const socket = openSocket('129.21.91.149:3000');
+const socket = openSocket('165.227.76.156:3000');
 
 class App extends Component {
   constructor(props){
