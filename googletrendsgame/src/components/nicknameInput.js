@@ -27,7 +27,7 @@ export default class NicknameInput extends Component {
        <form onSubmit={this.sendNickname}>
         <input placeholder="Enter a nickname..." onChange = {this.onInputChange} value={this.state.fieldValue} />
         <span>
-          <ActiveButton className = "" input = {this.state.fieldValue} />
+          <ActiveButton input = {this.state.fieldValue} type='register' />
         </span>
        </form>
      )
