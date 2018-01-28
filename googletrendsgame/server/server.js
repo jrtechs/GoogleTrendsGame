@@ -132,7 +132,7 @@ var room = function(capacityP, pass, owner)
         //if room is empty remove the room from rooms list
         if(this.users.length == 0)
         {
-            //rooms[this.roomName] = null;
+            rooms.remove(this.roomName);
         }
     }
 
@@ -288,7 +288,7 @@ var generateSendRoomsJSON = function()
     {
         console.log("**************");
         console.log(key);
-        if(rooms[key] == null)
+        if(rooms[key] != null)
         {
             var roomObj = new Object();
 
@@ -421,7 +421,8 @@ io.on('connection', function(socket)
             p.room.removeUser(p);
         }
 
-        players[p.name] = null;
+        //players[p.name] = null;
+        players.remove(p.name);
 
     });
 });
