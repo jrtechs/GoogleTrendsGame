@@ -16,7 +16,7 @@ export default class activeButton extends Component {
           )
         }
       case 'createRoom':
-        if(this.props.passInput != '' && this.props.capacityInput != '' && this.props.capacityInput <= 25 && this.props.capacityInput>=2 && this.props.capacityInput.length <= 2){
+        if(this.props.passInput !== '' && this.props.capacityInput !== '' && this.props.capacityInput <= 25 && this.props.capacityInput>=2 && this.props.capacityInput.length <= 2){
           return(
             <button>Create Room</button>
           )
