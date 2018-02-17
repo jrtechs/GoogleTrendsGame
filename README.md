@@ -8,14 +8,27 @@ Guess the trends beat your friends
 
 
 ````
-npm init
-npm install express
-npm install socket.io
-npm install mysql
-npm install sanitizer
-npm install google-trends-api
-npm install promise
-npm install async
+npm init -y
+npm install --save express morgan
+npm install socket.io --save
+npm install mysql --save
+npm install sanitizer --save
+npm install google-trends-api --save
+npm install promise --save
+npm install async --save
+
+npm install --save-dev babel-cli babel-preset-es2015 rimraf
+````
+
+###Configure Babel
+```
+touch .babelrc
+```
+In that file put:
+````
+{
+  "presets": ["es2015"]
+}
 ````
 
 ##Database Construction

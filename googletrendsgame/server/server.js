@@ -10,348 +10,31 @@ const serverUtils = require('./serverUtils.js');
 //used for the getting the word array
 const utils = require("./utils.js");
 
-//gets the trending data
-const trendingAPI = require("./trendsAPI.js");
+
+
 
 //const sqlStuff = require("./sql.js");
 
-/**
- * Object used for storing rooms
- * @param capacityP -- the number of people that can be in room
- * @param pass -- the room password -- null if none
- * @param owner -- the person who is creating the room
- */
-var room = function(capacityP, pass, owner)
-{
-    //max capacity of room -- default is 4 for now
-    this.capacity = capacityP;
+var Room  = require("./room");
 
-    //name of the room
-    this.roomName = owner.name;
+var Player = require("./player");
 
-    //list of words used in the game
-    //7 for now will change later to be room specific
-    this.words = utils.getRandomWords(7);
+//import {Room} from 'room.js';
 
-    this.currentWord = this.words.pop();
-
-    //list players -- so we can push requests to them
-    this.users = [];
-
-    //increments when rounds pass
-    this.currentRound = 0;
-
-    // the password of the room -- null if no password
-    this.password = pass;
-
-    /**
-     1 = Waiting for users
-     2 = Word shown, Waiting for response from users
-     3 = Showing Result
-     4 = Game Over, Display Final Results
-    */
-    this.state = 1;
-
-    /**
-     * creates json to send in the 'roomUpdate' socket event
-     *
-     * {users: gameState: roundWinner: currentWord: }
-     */
-    this.generateRoomUpdate = function()
-    {
-        var result = new Object();
-
-        result.users = [];
-
-        this.users.forEach(function(u)
-        {
-            result.users.push(u.genJASON());
-        });
-
-        //sort the users based on score
-        var countOuter = 0;
-        var countInner = 0;
-        var countSwap = 0;
-
-        // var swapped;
-        // do
-        // {
-        //     countOuter++;
-        //     swapped = false;
-        //     for(var i = 0; i < result.users.length; i++)
-        //     {
-        //         countInner++;
-        //         if(result.users[i].score && result.users[i + 1].score &&
-        //             result.users[i].score > result.users[i + 1].score)
-        //         {
-        //             countSwap++;
-        //             var temp = result.users[i];
-        //             result.users[i] = result.users[j];
-        //             result.users[j] = temp;
-        //             swapped = true;
-        //         }
-        //     }
-        // } while(swapped);
+//import {Player} from 'player.js';
 
 
-        result.gameState = this.state;
+//list of all players --accessed using names like a dic
+var players = {};
 
+//list of all the rooms
+var rooms = {};
 
-        //sets round winner
-        var rWinner = -1;
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
-        for(var i = 0; i < this.users.length; i++)
-        {
-            if(rWinner < this.users[i].roundScore)
-            {
-                result.roundWinner = this.users[i].name;
-                rWinner = this.users[i].roundScore;
-            }
-        }
-
-        result.currentWord = this.currentWord;
-
-        return result;
-    }
-
-    /**
-     * grabs roomUpdate json and beams it to every user in the channel
-     */
-    this.sendRoomUpdate = function()
-    {
-        var message = this.generateRoomUpdate();
-        this.users.forEach(function(u)
-        {
-            //console.log("room update called");
-            u.socket.emit('roomUpdate', message);
-            //console.log(message);
-        });
-    }
-
-    /**
-     * adds a user to a room
-     * @param p
-     * return 0 if they could join
-     */
-    this.addUser = function(player)
-    {
-        //console.log("user added");
-        //check if room is not full
-        this.users.push(player);
-        player.room = this;
-
-        if(this.users.length == this.capacity)
-        {
-            this.state = 2;
-        }
-
-        console.log("user added to room " + player.name);
-        //console.log(this.users);
-
-        this.update();
-    }
-
-
-
-
-    /**
-     * Removes a specific user from the room and adjusts the size of the array
-     * if the array is empty, the room closes
-     * @param p
-     */
-    this.removeUser = function(p)
-    {
-        console.log("remove users fnc called");
-        var temp = new Array();
-
-        for(var i = 0; i < temp.length; i++)
-        {
-            if(p.name === this.users[i].name)
-            {
-
-            }
-            else
-            {
-                temp.push(this.users[i]);
-            }
-        }
-
-        this.users = temp;
-
-        //if room is empty remove the room from rooms list
-        if(this.users.length == 0)
-        {
-            console.log("room scrubbed");
-            delete rooms[this.roomName];
-        }
-
-        this.update();
-    }
-
-    /**
-     * Whether or not a user can join this room -- checks for number of people are
-     * already in the room and the password
-     * @param p
-     * @returns {boolean}
-     */
-    this.canJoin = function(p)
-    {
-        if(this.password == null)
-        {
-            return (this.users.length < this.capacity);
-        }
-        else
-        {
-            return (this.users.length < this.capacity) && (p === this.password);
-        }
-    }
-
-    /**
-     * starts new round for the room -- called once all the players have submitted
-     */
-    this.newRound = function()
-    {
-        console.log("new round started");
-        if(this.words.length == 0)
-        {
-            this.state == 4;
-        }
-        else
-        {
-            this.currentRound++;
-            this.users.forEach(function(u)
-            {
-                u.submission = '';
-            });
-            this.currentWord = this.words.pop();
-            this.state = 2;
-        }
-        this.sendRoomUpdate();
-    }
-
-    //updates room variables
-    this.update = function()
-    {
-        switch(this.state)
-        {
-            case 1: //waiting for users to join
-            {
-                if(this.users.length == this.capacity)
-                {
-                    this.newRound();
-                }
-                break;
-            }
-            case 2: // waiting for responses
-            {
-                var flag = true;
-                var test = "";
-                this.users.forEach(function(u)
-                {
-                    test+=u.submission;
-                    if(u.submission === '')
-                    {
-                        flag = false;
-                    }
-                });
-                console.log("big stuff " + test);
-                if(flag)
-                {
-                    this.state = 3;
-                    this.newRound();
-                    // setTimeout(function() {
-                    //
-                    // }, 4000);
-                }
-                break;
-            }
-            case 3: // showing results -- time out fnc
-            {
-                console.log("error &&&&&&&&&&&&&&&&&&");
-                break;
-            }
-            case 4: //game over display final result
-            {
-                //sqlStuff.dumpRoom(this);
-                break;
-            }
-            default:
-            {
-                console.log("You don goof up")
-            }
-        }
-        console.log(this.state + " state");
-        this.sendRoomUpdate();
-    }
-    this.addUser(owner);
-
-}
-
-
-var player = function(s)
-{
-    //name of the user
-    this.name = null;
-
-    //players socket
-    this.socket = s;
-
-    //score of the player
-    this.score = 0;
-
-    //reference to the room -- might not need this
-    this.room = null;
-
-    //the word the user selected for current round
-    this.submission = '';
-
-    this.roundScore = 0;
-
-    //logs the user data so we can record it to data base at end of round
-    this.log = [];
-
-    /**
-     * generate the json object used in 'roomUpdate' socket io event
-     *
-     * return {name: score: word:}
-     */
-    this.genJASON = function()
-    {
-        var result = new Object();
-        result.name = this.name;
-        result.score = this.score;
-        result.word = this.submission;
-
-        return result;
-    }
-
-    /**
-     * data -- literally a string
-     * @param data
-     */
-    this.selectWord = function(data)
-    {
-        var w = data + " " + this.room.currentWord;
-        this.sumbission = data;
-
-        //console.log(w);
-
-        this.room.update();
-
-        return new Promise(function(resolve, reject)
-        {
-            trendingAPI.getPopularity(w).then(function(result)
-            {
-                console.log("api result for " + result + w);
-                resolve(result);
-            }).catch(function(err){
-                console.log(err);
-            })
-        });
-
-
-    }
-}
+const PORT = 3000;
 
 
 /**
@@ -398,17 +81,6 @@ var generateSendRoomsJSON = function()
     return obj;
 }
 
-//list of all players --accessed using names like a dic
-var players = {};
-
-//list of all the rooms
-var rooms = {};
-
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-
-const port = 3000;
 
 
 app.get('/', function(req, res)
@@ -420,7 +92,7 @@ app.get('/', function(req, res)
 //Whenever someone connects this gets executed
 io.on('connection', function(socket)
 {
-    var p = new player(socket);
+    var p = new Player(socket);
 
     console.log('A user connected');
 
@@ -461,7 +133,7 @@ io.on('connection', function(socket)
         console.log(data + "create room");
         // console.log(data);
         // console.log("  ");
-        rooms[p.name] = new room(data.capacity, data.password, p);
+        rooms[p.name] = new Room(data.capacity, data.password, p);
 
         //sends updated room list to all users not in a room
         var dd = generateSendRoomsJSON();
@@ -544,7 +216,7 @@ io.on('connection', function(socket)
     });
 });
 
-http.listen(port, function()
+http.listen(PORT, function()
 {
     console.log('listening on *:3000');
 });
