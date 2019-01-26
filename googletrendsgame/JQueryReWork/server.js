@@ -25,19 +25,58 @@ const PORT = 5000;
 const whiskers = require('whiskers');
 
 
-function fetchHTML(templateContext, templateKey, filename)
+function fetchHTMLInTemplateContext(templateContext, templateKey, filename)
 {
-    templateContext[templateKey] = fs.readFileSync(filename)
+    templateContext[templateKey] = fetchFile(filename);
+}
+
+function fetchFile(filename)
+{
+    return fs.readFileSync(filename);
+}
+
+
+function fetchLobby(templateContext)
+{
+
+}
+
+function fetchGame(templateContext)
+{
+
+}
+
+
+function processPage(result, pageHTMLFile, templateFillerFunction)
+{
+    var templateContext = new Object();
+
+
+    var promises = [
+        fetchFile("./html/mainTemplate.html"),
+        templateFillerFunction(templateContext),
+        fetchHTMLInTemplateContext(templateContext, "header", "./html/header.html"),
+        fetchHTMLInTemplateContext(templateContext, "footer", "./html/footer.html"),
+        fetchHTMLInTemplateContext(templateContext, "mainContent", "./html/" + pageHTMLFile)
+    ];
+
+    Promise.all(promises).then(function(resultArray)
+    {
+        result.write(whiskers.render(resultArray[0], templateContext));
+        result.end();
+    });
 }
 
 
 app.get('/', (requst, result) =>
 {
-    result.write(fs.readFileSync("./html/home.html"));
-    result.end();
+    processPage(result, "lobby.html", fetchLobby);
 });
 
-
+app.get('/game', (request, result)=>
+{
+    processPage(result, "game.html", fetchLobby);
+});
 
 app.use(express.static('css'));
 app.use(express.static('js'));
