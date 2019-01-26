@@ -19,6 +19,18 @@ app.use(express.json());      // if needed
 app.use(session({ secret: "changeWithConfigLater", cookie: { maxAge: 6000000 }}));
 
 
+var Room  = require("./room");
+
+var Player = require("./player");
+
+
+//list of all players --accessed using names like a dic
+var players = {};
+
+//list of all the rooms
+var rooms = {};
+
+
 const PORT = 5000;
 
 
@@ -38,7 +50,7 @@ function fetchFile(filename)
 
 function fetchLobby(templateContext)
 {
-
+    templateContext.rooms = [{name: "test1"},{name: "test2"}];
 }
 
 function fetchGame(templateContext)
@@ -70,13 +82,20 @@ function processPage(result, pageHTMLFile, templateFillerFunction)
 
 app.get('/', (requst, result) =>
 {
-    processPage(result, "lobby.html", fetchLobby);
+    processPage(result, "home.html", fetchLobby);
 });
 
 app.get('/game', (request, result)=>
 {
-    processPage(result, "game.html", fetchLobby);
+    processPage(result, "game.html", fetchGame);
 });
+
+
+app.get('/lobby', (request, result)=>
+{
+    processPage(result, "lobby.html", fetchLobby);
+});
+
 
 app.use(express.static('css'));
 app.use(express.static('js'));

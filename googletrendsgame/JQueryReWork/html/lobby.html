@@ -1,0 +1,14 @@
+<div class="container">
+    <div class="row">
+        <ul>
+            {for room in rooms}
+                <li class="lobby__room">
+                    <span class="lobby__room-name">{room.name}</span>
+                    <span class="lobby__room-occupancy">{room.occupancy}</span>
+                    <span class="lobby__room-status">{room.status}</span>
+                </li>
+            {/for}
+        </ul>
+    </div>
+    <button>Create Room<button>
+</div>
