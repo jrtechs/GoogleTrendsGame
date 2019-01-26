@@ -7,7 +7,7 @@ body {
 .logo {
   width: auto;
   flex: 0;
-  padding: 20px;
+  padding: 5px;
   color: #0459ed;
   font-size: 50px;
   text-transform: uppercase;
@@ -285,7 +285,6 @@ a {
 
 .game__phrase--entry,
 .game__phrase--clue {
-  float: left;
   padding: 0 0 15px 0;
   padding-left: 0;
   font-size: 100px;
@@ -293,9 +292,6 @@ a {
   vertical-align: baseline; }
 
 .game__phrase--entry {
-  min-width: 100px;
-  margin: 0 15px 10px 0;
-  border-right: none;
   background: transparent;
   box-shadow: 0;
   text-align: right;

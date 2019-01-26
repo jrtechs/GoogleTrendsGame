@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
-import './App.css';
+import '../JQueryReWork/css/app.css';
 import openSocket from 'socket.io-client';
 import NicknameInput from './components/nicknameInput';
 import CreateRoomInput from './components/createRoomInput';
